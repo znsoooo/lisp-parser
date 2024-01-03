@@ -27,23 +27,26 @@ def find(path, string):
     for p1 in find_word(s, string):
         p2 = parent(s, p1, 3)
         s2 = s[p2:]
-        if s2.startswith('port'):
-            port = s2.split()[1]
-            for p3 in find_word(s, port):
-                p4 = parent(s, p3, 2)
-                s4 = s[p4:]
-                if s4.startswith('joined'):
-                    q4 = pair(s4, d=1)
-                    joined = s4[:q4]
-                    ports = re.findall('portRef (.+?) ', joined)
-                    for port2 in ports:
-                        if port2 != port:
-                            for p5 in find_word(s, 'port +' + port2):
-                                s5 = s[p5:]
-                                q5 = pair(s5, d=1)
-                                port2_s = s5[:q5]
-                                result = re.findall(r'\(rename Simulation_Value "Simulation Value"\) +\(string "(\w+)"\)', port2_s)
-                                yield result[0]
+        if not s2.startswith('port'):
+            continue
+        port = s2.split()[1]
+        for p3 in find_word(s, port):
+            p4 = parent(s, p3, 2)
+            s4 = s[p4:]
+            if not s4.startswith('joined'):
+                continue
+            q4 = pair(s4, d=1)
+            joined = s4[:q4]
+            ports = re.findall('portRef (.+?) ', joined)
+            for port2 in ports:
+                if port2 == port:
+                    continue
+                for p5 in find_word(s, 'port +' + port2):
+                    s5 = s[p5:]
+                    q5 = pair(s5, d=1)
+                    port2_s = s5[:q5]
+                    result = re.findall(r'\(rename Simulation_Value "Simulation Value"\) +\(string "(\w+)"\)', port2_s)
+                    yield result[0]
 
 
 path = '1.edn'
