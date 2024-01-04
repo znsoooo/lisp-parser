@@ -22,10 +22,14 @@ class Node:
         assert isinstance(item, int), type(item)
         return self.args[item]
 
+    def __iter__(self, level=0):
+        yield level, self.name
+        for arg in self.args:
+            yield from arg.__iter__(level + 1)
+
     def __repr__(self):
-        result = [self.level * '| ' + self.name if self.name else 'TOP']
-        result += [str(arg) for arg in self.args]
-        return '\n'.join(result)
+        lines = [lv * '| ' + (name or 'TOP') for lv, name in self]
+        return '\n'.join(lines)
 
 
 scanner = re.Scanner([
