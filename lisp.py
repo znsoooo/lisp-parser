@@ -4,8 +4,8 @@ import re
 scanner = re.Scanner([
     (r'\s+', None),
     (r'[^"()\s]+|"[^"]*"', lambda scanner, token: ('NAME', token)),
-    (r'\(', lambda scanner, token: ('NEXT', token)),
-    (r'\)', lambda scanner, token: ('PREV', token)),
+    (r'\(', lambda scanner, token: (token, token)),
+    (r'\)', lambda scanner, token: (token, token)),
 ])
 
 
@@ -52,37 +52,52 @@ class Node:
         return '\n'.join(lines)
 
 
-def parse(path):
-    # 读取文件
-    text = open(path).read()
-
-    # 扫描全部文本
+def ParseLisp(text):
     results, remainder = scanner.scan(text)
-
-    # 检测文本处理完毕
     assert remainder == '', repr(remainder[:50])
-
-    # 检测括号数量匹配
     types = [typ for typ, name in results]
     assert types.count('NEXT') == types.count('PREV'), (types.count('NEXT'), types.count('PREV'))
-
-    # 结构化语法树
     root = node = Node()
     for typ, name in results:
-        if typ == 'NEXT':
+        if typ == '(':
             node = Node(node)
-        elif typ == 'PREV':
+        elif typ == ')':
             node = node.parent
         elif typ == 'NAME':
             node += name
-
     return root
 
 
-root = parse('XINXICHULI_BD.edn')
+from pprint import pprint
+from contextlib import suppress
+
+
+path = 'XINXICHULI_BD.edn'
+text = open(path).read()
+root = ParseLisp(text)
+
+
+cells = {}
+for cell in root['cell']:
+    cell_name = cell[0].name
+    for port in cell['port']:
+        port_name = port[0].name
+        with suppress(StopIteration):
+            string = next(port['PORTCHARA']).parent[1][0].name.strip('"')
+            cells.setdefault(cell_name, {})[port_name] = string
+
+
+instances = {}
+for instance in root['instance']:
+    instances[instance[0][0].name] = instance[1][1][0].name
+
+
 for net in root['net']:
     print('=' * 40)
     for portRef in net['portRef']:
-        if 'instanceRef' in portRef:
-            print((portRef[0], portRef[1][0]))
-
+        with suppress(IndexError, KeyError):
+            x1 = portRef[0].name
+            x2 = portRef[1][0].name
+            x3 = instances[x2]
+            x4 = cells[x3][x1]
+            print((x1, x2, x3, x4))
