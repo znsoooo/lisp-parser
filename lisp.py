@@ -1,14 +1,21 @@
 import re
 
 
+scanner = re.Scanner([
+    (r'\s+', None),
+    (r'[^"()\s]+|"[^"]*"', lambda scanner, token: ('NAME', token)),
+    (r'\(', lambda scanner, token: ('NEXT', token)),
+    (r'\)', lambda scanner, token: ('PREV', token)),
+])
+
+
 class Node:
     def __init__(self, parent=None, name=None):
         self.parent = parent
         self.name = name
-        self.args = []
-        self.level = 0 if parent is None else parent.level + 1
+        self.children = []
         if parent:
-            parent.args.append(self)
+            parent.children.append(self)
 
     def __add__(self, item):
         assert isinstance(item, str), type(item)
@@ -18,26 +25,28 @@ class Node:
             Node(self, item)
         return self
 
+    def __eq__(self, other):
+        assert isinstance(other, str), type(other)
+        return other == self.name
+
     def __getitem__(self, item):
-        assert isinstance(item, int), type(item)
-        return self.args[item]
+        assert isinstance(item, (int, str)), type(item)
+        if isinstance(item, int):
+            return self.children[item]
+        if isinstance(item, str):
+            return (node for level, node in self if node == item)
 
     def __iter__(self, level=0):
-        yield level, self.name
-        for arg in self.args:
-            yield from arg.__iter__(level + 1)
+        yield level, self
+        for child in self.children:
+             yield from child.__iter__(level + 1)
 
     def __repr__(self):
-        lines = [lv * '| ' + (name or 'TOP') for lv, name in self]
+        return f'Node("{self.name}")'
+
+    def __str__(self):
+        lines = [level * '| ' + (node.name or 'TOP') for level, node in self]
         return '\n'.join(lines)
-
-
-scanner = re.Scanner([
-    (r'\s+', None),
-    (r'[^"()\s]+|"[^"]*"', lambda scanner, token: ('NAME', token)),
-    (r'\(', lambda scanner, token: ('NEXT', token)),
-    (r'\)', lambda scanner, token: ('PREV', token)),
-])
 
 
 def parse(path):
