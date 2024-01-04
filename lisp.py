@@ -12,7 +12,7 @@ scanner = re.Scanner([
 class Node:
     def __init__(self, parent=None, name=None):
         self.parent = parent
-        self.name = name
+        self.name = name if parent else 'root'
         self.children = []
         if parent:
             parent.children.append(self)
@@ -25,9 +25,12 @@ class Node:
             Node(self, item)
         return self
 
-    def __eq__(self, other):
-        assert isinstance(other, str), type(other)
-        return other == self.name
+    def __contains__(self, item):
+        return any(item == node for level, node in self)
+
+    def __eq__(self, item):
+        assert isinstance(item, str), type(item)
+        return item == self.name
 
     def __getitem__(self, item):
         assert isinstance(item, (int, str)), type(item)
@@ -42,10 +45,10 @@ class Node:
              yield from child.__iter__(level + 1)
 
     def __repr__(self):
-        return f'Node("{self.name}")'
+        return f'Node({self.name!r})'
 
     def __str__(self):
-        lines = [level * '| ' + (node.name or 'TOP') for level, node in self]
+        lines = [level * '| ' + node.name for level, node in self]
         return '\n'.join(lines)
 
 
@@ -76,5 +79,10 @@ def parse(path):
     return root
 
 
-root = parse('test.edn')
-print(root)
+root = parse('XINXICHULI_BD.edn')
+for net in root['net']:
+    print('=' * 40)
+    for portRef in net['portRef']:
+        if 'instanceRef' in portRef:
+            print((portRef[0], portRef[1][0]))
+
