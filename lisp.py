@@ -17,6 +17,10 @@ class Node:
         if parent:
             parent.children.append(self)
 
+    @property
+    def stripname(self):
+        return self.name.strip('"')
+
     def __add__(self, item):
         assert isinstance(item, str), type(item)
         if self.name is None:
@@ -67,37 +71,3 @@ def ParseLisp(text):
             node += name
     return root
 
-
-from pprint import pprint
-from contextlib import suppress
-
-
-path = 'XINXICHULI_BD.edn'
-text = open(path).read()
-root = ParseLisp(text)
-
-
-cells = {}
-for cell in root['cell']:
-    cell_name = cell[0].name
-    for port in cell['port']:
-        port_name = port[0].name
-        with suppress(StopIteration):
-            string = next(port['PORTCHARA']).parent[1][0].name.strip('"')
-            cells.setdefault(cell_name, {})[port_name] = string
-
-
-instances = {}
-for instance in root['instance']:
-    instances[instance[0][0].name] = instance[1][1][0].name
-
-
-for net in root['net']:
-    print('=' * 40)
-    for portRef in net['portRef']:
-        with suppress(IndexError, KeyError):
-            x1 = portRef[0].name
-            x2 = portRef[1][0].name
-            x3 = instances[x2]
-            x4 = cells[x3][x1]
-            print((x1, x2, x3, x4))
