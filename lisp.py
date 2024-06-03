@@ -37,11 +37,17 @@ class Node:
         return item == self.name
 
     def __getitem__(self, item):
-        assert isinstance(item, (int, str)), type(item)
-        if isinstance(item, int):
+        if isinstance(item, tuple):
+            for key in item:
+                self = self[key]
+            return self
+        if isinstance(item, type(...)):
+            return self.parent
+        if isinstance(item, (int, slice)):
             return self.children[item]
         if isinstance(item, str):
-            return (node for level, node in self if node == item)
+            return [node for level, node in self if node == item]
+        raise TypeError(type(item))
 
     def __iter__(self, level=0):
         yield level, self
