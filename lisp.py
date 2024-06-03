@@ -17,10 +17,6 @@ class Node:
         if parent:
             parent.children.append(self)
 
-    @property
-    def stripname(self):
-        return self.name.strip('"')
-
     def __add__(self, item):
         assert isinstance(item, str), type(item)
         if self.name is None:
@@ -30,7 +26,8 @@ class Node:
         return self
 
     def __contains__(self, item):
-        return any(item == node for level, node in self)
+        assert isinstance(item, str), type(item)
+        return any(item == node for lv, node in self.iter())
 
     def __eq__(self, item):
         assert isinstance(item, str), type(item)
@@ -43,22 +40,28 @@ class Node:
             return self
         if isinstance(item, type(...)):
             return self.parent
-        if isinstance(item, (int, slice)):
+        if isinstance(item, int):
             return self.children[item]
         if isinstance(item, str):
-            return [node for level, node in self if node == item]
+            return [node for lv, node in self.iter() if node == item]
         raise TypeError(type(item))
 
     def __iter__(self, level=0):
-        yield level, self
-        for child in self.children:
-             yield from child.__iter__(level + 1)
+        yield from self.children
 
     def __repr__(self):
         return f'Node({self.name!r})'
 
     def __str__(self):
-        lines = [level * '| ' + node.name for level, node in self]
+        return self.name.strip('"')
+
+    def iter(self, level=0):
+        yield level, self
+        for child in self.children:
+             yield from child.iter(level + 1)
+
+    def tree(self):
+        lines = [level * '| ' + node.name for level, node in self.iter()]
         return '\n'.join(lines)
 
 

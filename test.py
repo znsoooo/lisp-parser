@@ -15,9 +15,9 @@ from pprint import pprint
 
 def GetName(node):
     if 'rename' not in node.children[0]:
-        return node[0].stripname
+        return str(node[0])
     else:
-        return node[0, 1].stripname
+        return str(node[0, 1])
 
 
 def GetCells(root):
@@ -27,9 +27,9 @@ def GetCells(root):
 def GetInstance(root):
     insts = {}
     for inst in root['instance']:
-        inst_ref = inst[0, 0].stripname
-        cell_name = inst[1, 1, 0].stripname
-        inst_name = inst[4, 0].stripname
+        inst_ref = str(inst[0, 0])
+        cell_name = str(inst[1, 1, 0])
+        inst_name = str(inst[4, 0])
         insts[inst_ref] = [cell_name, inst_name]
     return insts
 
@@ -39,9 +39,9 @@ def GetNets(root):
     for net in root['net']:
         net_name = GetName(net)
         net_ports = []
-        for port in net[1, :]:
-            port_name = port[0].stripname
-            inst_ref = port[1, 0].stripname
+        for port in net[1]:
+            port_name = str(port[0])
+            inst_ref = str(port[1, 0])
             net_ports.append([inst_ref, port_name])
         nets[net_name] = net_ports
     return nets
