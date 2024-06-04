@@ -30,8 +30,11 @@ class Node:
         return any(item == node for lv, id, node in self.iter())
 
     def __eq__(self, item):
-        assert isinstance(item, str), type(item)
-        return item == self.name
+        if isinstance(item, str):
+            return self.name == item
+        if isinstance(item, Node):
+            return self is item
+        raise TypeError(type(item))
 
     def __getitem__(self, item):
         if isinstance(item, tuple):
@@ -46,7 +49,7 @@ class Node:
             return [node for lv, id, node in self.iter() if node == item]
         raise TypeError(type(item))
 
-    def __iter__(self, level=0):
+    def __iter__(self, lv=0):
         yield from self.children
 
     def __repr__(self):
@@ -55,10 +58,17 @@ class Node:
     def __str__(self):
         return self.name.strip('"')
 
-    def iter(self, level=0, id=0):
-        yield level, id, self
+    def index(self):
+        ancient = []
+        while self.parent:
+            ancient.insert(0, self.parent.children.index(self))
+            self = self.parent
+        return tuple(ancient)
+
+    def iter(self, lv=0, id=0):
+        yield lv, id, self
         for id, child in enumerate(self.children):
-             yield from child.iter(level + 1, id)
+             yield from child.iter(lv + 1, id)
 
     def tree(self):
         lines = [lv * ' | ' + f'[{id}] {node.name}\n' for lv, id, node in self.iter()]
