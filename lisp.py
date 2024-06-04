@@ -27,7 +27,7 @@ class Node:
 
     def __contains__(self, item):
         assert isinstance(item, str), type(item)
-        return any(item == node for lv, node in self.iter())
+        return any(item == node for lv, id, node in self.iter())
 
     def __eq__(self, item):
         assert isinstance(item, str), type(item)
@@ -43,7 +43,7 @@ class Node:
         if isinstance(item, int):
             return self.children[item]
         if isinstance(item, str):
-            return [node for lv, node in self.iter() if node == item]
+            return [node for lv, id, node in self.iter() if node == item]
         raise TypeError(type(item))
 
     def __iter__(self, level=0):
@@ -55,14 +55,15 @@ class Node:
     def __str__(self):
         return self.name.strip('"')
 
-    def iter(self, level=0):
-        yield level, self
-        for child in self.children:
-             yield from child.iter(level + 1)
+    def iter(self, level=0, id=0):
+        yield level, id, self
+        for id, child in enumerate(self.children):
+             yield from child.iter(level + 1, id)
 
     def tree(self):
-        lines = [level * '| ' + node.name for level, node in self.iter()]
-        return '\n'.join(lines)
+        lines = [lv * ' | ' + f'[{id}] {node.name}\n' for lv, id, node in self.iter()]
+        lines[0] = '[/]' + lines[0][3:]
+        print(''.join(lines))
 
 
 def ParseLisp(text):
