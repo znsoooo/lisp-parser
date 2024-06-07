@@ -12,15 +12,17 @@ scanner = re.Scanner([
 class Node:
     def __init__(self, parent=None, name=None):
         self.parent = parent
-        self.name = name if parent else 'root'
+        self._name = name if parent else 'root'
+        self.name = self._name and self._name.strip('"')
         self.children = []
         if parent:
             parent.children.append(self)
 
     def __add__(self, item):
         assert isinstance(item, str), type(item)
-        if self.name is None:
-            self.name = item
+        if self._name is None:
+            self._name = item
+            self.name = self._name and self._name.strip('"')
         else:
             Node(self, item)
         return self
@@ -56,7 +58,7 @@ class Node:
         return f'Node({self.name!r})'
 
     def __str__(self):
-        return self.name.strip('"')
+        return self.name
 
     def index(self):
         ancient = []
@@ -71,7 +73,7 @@ class Node:
              yield from child.iter(lv + 1, id)
 
     def tree(self):
-        lines = [lv * ' | ' + f'[{id}] {node.name}\n' for lv, id, node in self.iter()]
+        lines = [lv * ' | ' + f'[{id}] {node._name}\n' for lv, id, node in self.iter()]
         lines[0] = '[/]' + lines[0][3:]
         print(''.join(lines))
 
