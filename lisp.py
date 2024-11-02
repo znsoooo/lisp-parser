@@ -27,6 +27,9 @@ class Node:
             Node(self, item)
         return self
 
+    def __bool__(self):
+        return True
+
     def __contains__(self, item):
         assert isinstance(item, str), type(item)
         return any(item == node for lv, id, node in self.iter())
@@ -49,10 +52,13 @@ class Node:
             return self.children[item]
         if isinstance(item, str):
             return [node for lv, id, node in self.iter() if node == item]
-        raise TypeError(type(item))
+        raise TypeError(item)
 
-    def __iter__(self, lv=0):
+    def __iter__(self):
         yield from self.children
+
+    def __len__(self):
+        return len(self.children)
 
     def __repr__(self):
         return f'Node({self.name!r})'
