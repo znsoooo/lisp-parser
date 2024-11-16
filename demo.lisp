@@ -75,8 +75,9 @@
             (port DATACLK
               (direction INOUT)
               (designator "12")
-			    (property  (rename Simulation_Value "Simulation Value")  (string "D_SCLK")
-				(owner "Mentor Graphics Corporation")
+              (property  (rename Simulation_Value "Simulation Value")  (string "D_SCLK")
+                (owner "Mentor Graphics Corporation")
+              )
             )
             (port DGND
               (designator "10")
@@ -228,8 +229,9 @@
             (port IO_L2N_T0_10
               (direction INOUT)
               (designator "AJ18")
-			  (property  (rename Simulation_Value "Simulation Value")  (string "R_SCLK")
+              (property  (rename Simulation_Value "Simulation Value")  (string "R_SCLK")
                 (owner "Mentor Graphics Corporation")
+              )
             )
             (port IO_L2N_T0_11
               (direction INOUT)
@@ -680,9 +682,9 @@
             (port  &2A 
               (direction INPUT)
               (designator "9")
-			  (property  (rename Simulation_Value "Simulation Value")  (string "R_TRANS")
+              (property  (rename Simulation_Value "Simulation Value")  (string "R_TRANS")
                 (owner "Mentor Graphics Corporation")
-			  )
+              )
             )
             (port  (rename &2Y "2Y")
               (direction OUTPUT)
