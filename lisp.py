@@ -42,17 +42,22 @@ class Node:
         raise TypeError(type(item))
 
     def __getitem__(self, item):
-        if isinstance(item, tuple):
-            for key in item:
-                self = self[key]
-            return self
-        if isinstance(item, type(...)):
-            return self.parent
-        if isinstance(item, int):
-            return self.children[item]
-        if isinstance(item, str):
-            return [node for lv, id, node in self.iter() if node == item]
-        raise TypeError(item)
+        err = None
+        try:
+            if isinstance(item, tuple):
+                for key in item:
+                    self = self[key]
+                return self
+            if isinstance(item, type(...)):
+                assert self.parent is not None
+                return self.parent
+            if isinstance(item, int):
+                return self.children[item]
+            if isinstance(item, str):
+                return [node for lv, id, node in self.iter() if node == item]
+        except Exception as e:
+            err = e
+        raise ValueError(item) if err else TypeError(item)
 
     def __iter__(self):
         yield from self.children
@@ -88,7 +93,7 @@ def ParseLisp(text):
     results, remainder = scanner.scan(text)
     assert remainder == '', repr(remainder[:50])
     types = [typ for typ, name in results]
-    assert types.count('NEXT') == types.count('PREV'), (types.count('NEXT'), types.count('PREV'))
+    assert types.count('(') == types.count(')'), (types.count('('), types.count(')'))
     root = node = Node()
     for typ, name in results:
         if typ == '(':
