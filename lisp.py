@@ -78,15 +78,16 @@ class Node:
             self = self.parent
         return tuple(ancient)
 
-    def iter(self, lv=0, id=0):
-        yield lv, id, self
-        for id, child in enumerate(self.children):
-             yield from child.iter(lv + 1, id)
+    def iter(self, lv=0, id=0, deep=-1):
+        if deep < 0 or lv <= deep:
+            yield lv, id, self
+            for id, child in enumerate(self.children):
+                yield from child.iter(lv + 1, id, deep)
 
-    def tree(self):
-        lines = [lv * ' | ' + f'[{id}] {node.rawname}\n' for lv, id, node in self.iter()]
+    def tree(self, deep=-1):
+        lines = [lv * ' | ' + f'[{id}] {node.rawname}' for lv, id, node in self.iter(deep=deep)]
         lines[0] = '[/]' + lines[0][3:]
-        print(''.join(lines))
+        return '\n'.join(lines)
 
 
 def ParseLisp(text):
@@ -121,4 +122,4 @@ if __name__ == '__main__':
     '''
     # text = open('demo.lisp').read()
     root = ParseLisp(text)
-    root.tree()
+    print(root.tree())
