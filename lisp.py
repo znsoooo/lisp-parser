@@ -20,7 +20,7 @@ class Node:
 
     def __add__(self, item):
         assert isinstance(item, str), type(item)
-        if self.rawname is None:
+        if self.rawname is None and not self.children:
             self.rawname = item
             self.name = self.rawname and self.rawname.strip('"')
         else:
