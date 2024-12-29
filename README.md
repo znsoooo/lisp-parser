@@ -21,31 +21,48 @@ A Lisp parser based on Python's regular expression.
 - **Search node by index:**
 
     ```python
-    sub_node = node[0][2][1]
-    ```
-
-- **Get node's children:**
-
-    ```python
-    for child in node.children:
-        print(child)
+    node = root[0, 2, 1]
     ```
 
 - **Get node's parent:**
 
     ```python
-    parent = node.parent
+    parent = node[...]
+    ```
+
+- **Get node by chain:**
+
+    ```python
+    node = root['name', -1, ..., 2, 1, 0]
+    ```
+
+- **Get node's children:**
+
+    ```python
+    for child in node:
+        print(child)
+    ```
+
+- **Get children's count:**
+
+    ```python
+    count = len(node)
     ```
 
 - **Get node's name:**
 
     ```python
-    node_name = node.name
-    node_name_without_quote = node.stripname
+    node_name = str(node)
     ```
-
+    
 - **Compare with node's name:**
 
     ```python
-    is_name_correct = (node == 'name')
+    print(node == 'name')
+    ```
+
+- **Check sub-node in node:**
+
+    ```python
+    print('name' in node)
     ```

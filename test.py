@@ -38,7 +38,7 @@ def GetInstance(root):
     for inst in root['instance']:
         inst_ref = str(inst[0, 0])
         cell_ref = str(inst[1, 1, 0])
-        inst_name = str(inst[4, 0])
+        inst_name = str(inst['designator', -1, 0])
         table[inst_ref] = [cell_ref, inst_name]
     return table
 
@@ -49,6 +49,7 @@ def GetNets(root):
         net_name = GetRename(net)
         net_ports = []
         for port in net[1]:
+            assert len(port) == 2, len(port)
             port_ref = str(port[0])
             inst_ref = str(port[1, 0])
             net_ports.append([inst_ref, port_ref])
@@ -56,7 +57,7 @@ def GetNets(root):
     return table
 
 
-path = '1.edn'
+path = 'demo.lisp'
 text = open(path).read()
 root = lisp.ParseLisp(text)
 
@@ -72,7 +73,7 @@ for net_name, net_ports in nets.items():
         port[:] = [cell_ref, port_name]
 
 for net_name, net_ports in nets.items():
-    print()
     print(net_name)
     for cell_name, port_name in net_ports:
         print(' ', cell_name, '->', port_name)
+    print()
